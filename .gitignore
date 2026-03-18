@@ -1,9 +1,0 @@
-node_modules/
-.claude/references/
-.claude/screenshots/
-.claude/research-raw-*.txt
-.claude/awwwards-*.json
-.claude/awwwards-*.txt
-.claude/step_archive/outputs/
-.claude/hooks/
-*.log
