@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>버블 정렬 시각화 튜토리얼</title>
+  <link rel="stylesheet" href="./css/main.css" />
+  <link rel="stylesheet" href="./css/visualizer.css" />
+  <link rel="stylesheet" href="./css/animations.css" />
+</head>
+<body>
+  <div class="app-layout">
+
+    <!-- ── HEADER ── -->
+    <header class="app-header">
+      <div class="header-left">
+        <h1 class="app-title">
+          <span class="title-icon">⬡</span>
+          버블 정렬
+          <span class="title-sub">Bubble Sort</span>
+        </h1>
+      </div>
+
+      <div class="header-center">
+        <label class="select-label" for="analogy-select">비유 선택</label>
+        <div class="select-wrapper">
+          <select id="analogy-select" class="analogy-select">
+            <option value="spotify">🎵 Spotify 플레이리스트</option>
+            <option value="kakao">💬 카카오톡 채팅</option>
+            <option value="appstore">📱 앱스토어 차트</option>
+          </select>
+          <span class="select-arrow">▾</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <button class="btn-icon" id="help-btn" aria-label="도움말 열기" title="도움말">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </button>
+        <div class="step-badge">
+          <span id="step-current">0</span>
+          <span class="step-sep">/</span>
+          <span id="step-total">0</span>
+          <span class="step-label">단계</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── MAIN ── -->
+    <main class="app-main">
+
+      <!-- Canvas area -->
+      <section class="canvas-section" aria-label="정렬 시각화 영역">
+        <div class="canvas-container">
+          <canvas id="visualizer" aria-label="버블 정렬 시각화 캔버스"></canvas>
+          <div class="canvas-overlay" id="canvas-overlay" hidden>
+            <div class="overlay-content">
+              <p class="overlay-text" id="overlay-text"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sidebar -->
+      <aside class="app-sidebar">
+
+        <!-- Code panel -->
+        <div class="panel code-panel">
+          <div class="panel-header">
+            <span class="panel-title">
+              <span class="panel-icon">{ }</span>
+              슈도코드
+            </span>
+            <button class="btn-panel-toggle" id="code-toggle" aria-expanded="true" aria-controls="code-body">
+              <svg class="toggle-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="18 15 12 9 6 15"/>
+              </svg>
+            </button>
+          </div>
+          <div class="panel-body" id="code-body">
+            <ol class="code-lines" id="code-lines">
+              <li class="code-line" data-line="0">procedure bubbleSort(A)</li>
+              <li class="code-line" data-line="1">  n ← length(A)</li>
+              <li class="code-line" data-line="2">  for i from 0 to n-1 do</li>
+              <li class="code-line" data-line="3">    for j from 0 to n-i-2 do</li>
+              <li class="code-line" data-line="4">      if A[j] &gt; A[j+1] then</li>
+              <li class="code-line" data-line="5">        swap(A[j], A[j+1])</li>
+              <li class="code-line" data-line="6">      end if</li>
+              <li class="code-line" data-line="7">    end for</li>
+              <li class="code-line" data-line="8">  end for</li>
+              <li class="code-line" data-line="9">end procedure</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- Stats panel -->
+        <div class="panel stats-panel">
+          <div class="panel-header">
+            <span class="panel-title">
+              <span class="panel-icon">◈</span>
+              통계
+            </span>
+          </div>
+          <div class="panel-body">
+            <ul class="stats-grid">
+              <li class="stat-item">
+                <span class="stat-label">비교 횟수</span>
+                <span class="stat-value" id="stat-comparisons">0</span>
+              </li>
+              <li class="stat-item">
+                <span class="stat-label">교환 횟수</span>
+                <span class="stat-value swap" id="stat-swaps">0</span>
+              </li>
+              <li class="stat-item">
+                <span class="stat-label">현재 패스</span>
+                <span class="stat-value" id="stat-pass">0</span>
+              </li>
+              <li class="stat-item">
+                <span class="stat-label">배열 크기</span>
+                <span class="stat-value" id="stat-size">10</span>
+              </li>
+            </ul>
+            <div class="complexity-row">
+              <span class="complexity-badge worst">최악 O(n²)</span>
+              <span class="complexity-badge best">최선 O(n)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message panel -->
+        <div class="panel message-panel">
+          <div class="panel-header">
+            <span class="panel-title">
+              <span class="panel-icon">💬</span>
+              설명
+            </span>
+          </div>
+          <div class="panel-body">
+            <div class="message-bubble" id="message-bubble">
+              <p class="message-text" id="message-text">
+                배열의 인접한 두 원소를 비교하여 더 큰 값을 오른쪽으로 이동시킵니다. 이 과정을 반복하면 큰 값이 거품처럼 위로 올라갑니다.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+    </main>
+
+    <!-- ── CONTROLS ── -->
+    <footer class="app-controls">
+
+      <!-- Playback controls -->
+      <div class="controls-group controls-playback">
+        <button class="btn-control" id="btn-prev" aria-label="이전 단계" title="이전 (←)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+
+        <button class="btn-control btn-play" id="btn-play" aria-label="재생" title="재생/일시정지 (Space)">
+          <svg class="icon-play" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          <svg class="icon-pause" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" hidden>
+            <rect x="6" y="4" width="4" height="16"/>
+            <rect x="14" y="4" width="4" height="16"/>
+          </svg>
+        </button>
+
+        <button class="btn-control" id="btn-next" aria-label="다음 단계" title="다음 (→)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+
+        <button class="btn-control btn-reset" id="btn-reset" aria-label="초기화" title="초기화 (R)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="1 4 1 10 7 10"/>
+            <path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Speed control -->
+      <div class="controls-group controls-speed">
+        <label class="control-label" for="speed-slider">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+          속도
+        </label>
+        <div class="slider-track-wrap">
+          <input type="range" id="speed-slider" class="slider" min="1" max="5" value="3" step="1" aria-label="애니메이션 속도" />
+          <div class="slider-ticks">
+            <span>1x</span><span>2x</span><span>3x</span><span>4x</span><span>5x</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Array size control -->
+      <div class="controls-group controls-size">
+        <label class="control-label" for="size-slider">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          크기
+        </label>
+        <div class="slider-track-wrap">
+          <input type="range" id="size-slider" class="slider" min="5" max="20" value="10" step="1" aria-label="배열 크기" />
+          <span class="slider-value" id="size-value">10</span>
+        </div>
+      </div>
+
+      <!-- Array generation buttons -->
+      <div class="controls-group controls-array">
+        <button class="btn-secondary" id="btn-random">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 3 21 3 21 8"/>
+            <line x1="4" y1="20" x2="21" y2="3"/>
+            <polyline points="21 16 21 21 16 21"/>
+            <line x1="15" y1="15" x2="21" y2="21"/>
+          </svg>
+          무작위
+        </button>
+        <button class="btn-secondary" id="btn-preset-sorted">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+          </svg>
+          정렬됨
+        </button>
+        <button class="btn-secondary" id="btn-preset-reverse">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="1 6 10.5 15.5 15.5 10.5 23 18"/>
+          </svg>
+          역순
+        </button>
+      </div>
+
+    </footer>
+
+  </div>
+
+  <!-- Help modal -->
+  <div class="modal-backdrop" id="help-modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title">도움말</h2>
+        <button class="btn-icon" id="modal-close" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <h3>단축키</h3>
+        <ul class="key-list">
+          <li><kbd>Space</kbd> 재생 / 일시정지</li>
+          <li><kbd>←</kbd> 이전 단계</li>
+          <li><kbd>→</kbd> 다음 단계</li>
+          <li><kbd>R</kbd> 초기화</li>
+        </ul>
+        <h3>색상 범례</h3>
+        <ul class="legend-list">
+          <li><span class="legend-dot default"></span> 기본 막대</li>
+          <li><span class="legend-dot comparing"></span> 비교 중</li>
+          <li><span class="legend-dot swapping"></span> 교환 중</li>
+          <li><span class="legend-dot sorted"></span> 정렬 완료</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/App.js"></script>
+</body>
+</html>
